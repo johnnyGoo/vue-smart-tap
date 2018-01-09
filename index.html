@@ -30,6 +30,9 @@
 <div id="app">
     <div v-tap="tap" class="btn">tap</div>
     <div v-tap:long="longTap"  class="btn">long tap</div>
+    tapCount:{{tapCount}}<br/>
+
+    longTapCount:{{longTapCount}}
 
 </div>
 
@@ -39,6 +42,7 @@
     Vue.use(VueSmartTap,{time:300,longTime:1000,count:3});
     new Vue({
         el: '#app', data: {
+            tapCount:0,longTapCount:0
 
         },
         mounted: function () {
@@ -46,9 +50,12 @@
         },
         methods:{
             tap:function(e){
+                // console.log(this)
+                this.tapCount+=1
                 console.log('taped',e);
             },
             longTap:function(e){
+                this.longTapCount+=1
                 console.log('longtaped',e);
             }
         },

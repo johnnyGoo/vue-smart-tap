@@ -68,7 +68,9 @@ function isTap(self, long) {
 
 function touchstart(e, self) {
     let tapObj = self.tapObj;
+
     tapObj.option.remain = tapObj.option.count
+
     if (tapObj.long === true) {
 
         clearInterval(tapObj.iv);
@@ -136,6 +138,7 @@ function touchmove(e, self) {
 
 function longTap(e, self) {
 
+
     let tapObj = self.tapObj;
     self.time = +new Date() - self.time;
 
@@ -146,11 +149,14 @@ function longTap(e, self) {
 
 function touchend(e, self) {
     let tapObj = self.tapObj;
+
     tapObj.startE = bindEvent(self, start, function (e) {
         touchstart(e, self);
     }, false);
+
     tapObj.endE()
     tapObj.moveE()
+
     if (tapObj.long === true) {
         clearInterval(tapObj.iv);
         return;
@@ -167,6 +173,7 @@ function touchend(e, self) {
     }
     self.time = +new Date() - self.time;
     if (!isTap(self, tapObj.long)) return;
+
     self.handler(e);
 }
 
@@ -209,28 +216,20 @@ VueSmartTap.install = function (Vue, option) {
                     return value.event.target.focus();
                 }
 
-                binding.value.call(this, e);
+
+                binding.value( e);
+
             };
 
-            el.tapObj.moveE=el.tapObj.endE=function(){}
+            el.tapObj.moveE = el.tapObj.endE = function () {
+            }
             el.tapObj.startE = bindEvent(el, start, function (e) {
                 touchstart(e, el);
             }, false);
 
 
-        },
-        componentUpdated: function (el, binding) {
 
-            el.tapObj = {};
-            el.handler = function (e) { //This directive.handler
-                var value = binding.value;
-                if (!value && el.href && !binding.modifiers.prevent) {
-                    return window.location = el.href;
-                }
-                value.event = e;
-                !isPc ? value.tapObj = el.tapObj : null;
-                binding.value.call(this.e);
-            };
+
         },
         unbind: function (el) {
             // 卸载，别说了都是泪
