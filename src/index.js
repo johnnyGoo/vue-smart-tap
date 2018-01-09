@@ -3,6 +3,7 @@
  */
 const VueSmartTap = {};
 
+
 const isPc = function () {
     var uaInfo = navigator.userAgent;
     var agents = ["Android", "iPhone", "Windows Phone", "iPad", "iPod"];
@@ -15,6 +16,33 @@ const isPc = function () {
     }
     return flag;
 }()
+let start, end, move
+if (isPc) {
+    start = 'mousedown'
+    move = 'mousemove'
+    end = 'mouseup'
+} else {
+    start = 'touchstart'
+    move = 'touchmove'
+    end = 'touchend'
+}
+
+let startE, endE, moveE
+
+function bindEvent(dom, event, callback, useCapture) {
+    function remove() {
+        dom.removeEventListener(event, icc, useCapture)
+    }
+
+    function icc(e) {
+        if (callback(e) === true) {
+            remove();
+        }
+    }
+
+    dom.addEventListener(event, icc, useCapture);
+    return remove;
+}
 
 function isTap(self, long) {
     if (self.disabled) {
@@ -40,6 +68,13 @@ function isTap(self, long) {
 
 function touchstart(e, self) {
     let tapObj = self.tapObj;
+    tapObj.option.remain = tapObj.option.count
+    if (tapObj.long === true) {
+
+        clearInterval(tapObj.iv);
+
+    }
+
     tapObj.e = e;
     if (e.type === 'touchstart') {
         let touches = e.touches[0];
@@ -60,12 +95,35 @@ function touchstart(e, self) {
     if (tapObj.long === true) {
         tapObj.iv = setInterval(longTap, tapObj.option.longTime, e, self);
     }
+    tapObj.startE()
+    tapObj.moveE = bindEvent(self, move, function (e) {
+        touchmove(e, self);
+    }, false);
+
+
+    tapObj.endE = bindEvent(self, end, function (e) {
+
+        try {
+            Object.defineProperty(e, 'currentTarget', {// 重写currentTarget对象 与jq相同
+                value: self,
+                writable: true,
+                enumerable: true,
+                configurable: true
+            })
+        } catch (e) {
+            e.currentTarget = self
+        }
+        e.preventDefault();
+
+        return touchend(e, self);
+    }, false);
 }
 
 
 function touchmove(e, self) {
     let tapObj = self.tapObj;
     tapObj.e = e;
+
     if (!isPc) {
         let touches = e.changedTouches[0];
         tapObj.distanceX = tapObj.pageX - touches.pageX;
@@ -88,8 +146,13 @@ function longTap(e, self) {
 
 function touchend(e, self) {
     let tapObj = self.tapObj;
+    tapObj.startE = bindEvent(self, start, function (e) {
+        touchstart(e, self);
+    }, false);
+    tapObj.endE()
+    tapObj.moveE()
     if (tapObj.long === true) {
-        setInterval(tapObj.iv);
+        clearInterval(tapObj.iv);
         return;
     }
 
@@ -148,40 +211,10 @@ VueSmartTap.install = function (Vue, option) {
 
                 binding.value.call(this, e);
             };
-            let start, end, move
-            if (isPc) {
-                start = 'mousedown'
-                move = 'mousemove'
-                end = 'mouseup'
-            } else {
-                start = 'touchstart'
-                move = 'touchmove'
-                end = 'touchend'
-            }
 
-            el.addEventListener(start, function (e) {
+
+            el.tapObj.startE = bindEvent(el, start, function (e) {
                 touchstart(e, el);
-            }, false);
-            el.addEventListener(move, function (e) {
-                touchmove(e, el);
-            }, false);
-
-
-            el.addEventListener(end, function (e) {
-
-                try {
-                    Object.defineProperty(e, 'currentTarget', {// 重写currentTarget对象 与jq相同
-                        value: el,
-                        writable: true,
-                        enumerable: true,
-                        configurable: true
-                    })
-                } catch (e) {
-                    e.currentTarget = el
-                }
-                e.preventDefault();
-
-                return touchend(e, el);
             }, false);
 
 
@@ -201,8 +234,10 @@ VueSmartTap.install = function (Vue, option) {
         },
         unbind: function (el) {
             // 卸载，别说了都是泪
-            el.handler = function () {
-            };
+            let tapObj = el.tapObj;
+            tapObj.startE()
+            tapObj.endE()
+            tapObj.moveE()
         }
     });
 };
