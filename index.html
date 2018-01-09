@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>vue-smart-tap</title>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<style>
+
+
+    body, html {
+
+    }
+    #app{
+
+    }
+
+    .btn{
+        font-size: 18px;
+        padding: 5px;
+        color: #fff;
+        background: cadetblue;
+    }
+</style>
+<body>
+<div id="app">
+    <div v-tap="tap" class="btn">tap</div>
+    <div v-tap:long="longTap"  class="btn">long tap</div>
+
+</div>
+
+<script src="node_modules/vue/dist/vue.js"></script>
+<script src="dist/vue-smart-tap.js"></script>
+<script>
+    Vue.use(VueSmartTap,{time:300,longTime:1000,count:3});
+
+    new Vue({
+        el: '#app', data: {
+
+        },
+        mounted: function () {
+
+        },
+        methods:{
+            tap:function(e){
+                console.log('taped',e);
+            },
+            longTap:function(e){
+                console.log('longtaped',e);
+            }
+        },
+        components: {
+           VueSmartTap: VueSmartTap
+        }
+    })
+</script>
+</body>
+</html>
