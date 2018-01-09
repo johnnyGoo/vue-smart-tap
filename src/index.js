@@ -212,7 +212,7 @@ VueSmartTap.install = function (Vue, option) {
                 binding.value.call(this, e);
             };
 
-
+            el.tapObj.moveE=el.tapObj.endE=function(){}
             el.tapObj.startE = bindEvent(el, start, function (e) {
                 touchstart(e, el);
             }, false);
