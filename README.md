@@ -11,10 +11,6 @@ npm run build
 ```
 
 
-```html
-   <div v-tap="tap" >tap</div>
-   <div v-tap:long="longTap" >long tap</div>
-```
 
 ### Install:
 ```
@@ -23,8 +19,12 @@ npm run build
  longTime longtap的触发时间，长按达到这个时间触发事件
  count 最多触发事件次数 仅long时有用
 ```
-
-
+### Html
+```html
+   <div v-tap="tap" >tap</div>
+   <div v-tap:long="longTap" >long tap</div>
+```
+### callback
 ```javascript
 callback(e) //回调函数 e:Event
 ```
